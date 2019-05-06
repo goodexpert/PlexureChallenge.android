@@ -24,7 +24,7 @@ class FavoriteFragment : BaseFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        appViewModel = ViewModelProviders.of(this).get(AppViewModel::class.java)
+        appViewModel = ViewModelProviders.of(activity!!).get(AppViewModel::class.java)
         adapter = FavoriteAdapter(activity!!)
     }
 
@@ -38,9 +38,23 @@ class FavoriteFragment : BaseFragment() {
         recyclerView.addItemDecoration(decorator)
         recyclerView.adapter = adapter
 
-        appViewModel.getStores().observe(this, Observer<List<Store>> {
-            adapter.setItems(it)
-        });
+        appViewModel.getStores().observe(activity!!, Observer<List<Store>> {
+            adapter.setItems(it.filter { it.isFavorite })
+        })
+
+        appViewModel.getSortedBy().observe(activity!!, Observer<String?> {
+            adapter.setSorted(it)
+        })
+
+        appViewModel.getFeatures().observe(activity!!, Observer<List<String>?> { features ->
+            adapter.filter {
+                if (features?.isEmpty() ?: true) {
+                    true
+                } else {
+                    it.featureList?.filter { features?.contains(it) ?: true }?.size ?: 0 > 0
+                }
+            }
+        })
         return root
     }
 

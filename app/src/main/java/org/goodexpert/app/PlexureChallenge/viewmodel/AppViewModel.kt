@@ -11,6 +11,8 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
     private val storeRepository: StoreRepository
     private val storesLiveData: LiveData<List<Store>>
     private val isRefreshingLiveData =  MutableLiveData<Boolean>()
+    private val sortedLiveData =  MutableLiveData<String?>()
+    private val featuresLiveData = MutableLiveData<List<String>?>()
 
     init {
         storeRepository = StoreRepository(application)
@@ -44,5 +46,21 @@ class AppViewModel(application: Application) : AndroidViewModel(application) {
 
     fun updateStore(store: Store): Completable {
         return storeRepository.updateStore(store)
+    }
+
+    fun getSortedBy(): LiveData<String?> {
+        return sortedLiveData
+    }
+
+    fun setSortedBy(sorted: String?) {
+        sortedLiveData.value = sorted
+    }
+
+    fun getFeatures(): LiveData<List<String>?> {
+        return featuresLiveData
+    }
+
+    fun setFeatures(features: List<String>?) {
+        featuresLiveData.value = features
     }
 }

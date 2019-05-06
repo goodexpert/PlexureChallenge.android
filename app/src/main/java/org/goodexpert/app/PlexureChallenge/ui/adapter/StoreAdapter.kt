@@ -16,6 +16,7 @@ import org.goodexpert.app.PlexureChallenge.viewmodel.AppViewModel
 class StoreAdapter : BaseAdapter<Store> {
 
     private val appViewModel: AppViewModel
+    private var sorted: String? = null
 
     constructor(activity: Activity) : super(activity) {
         appViewModel = ViewModelProviders.of(activity as AppCompatActivity).get(AppViewModel::class.java)
@@ -23,6 +24,13 @@ class StoreAdapter : BaseAdapter<Store> {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return ViewHolder(getInflater().inflate(R.layout.view_store_item, parent, false))
+    }
+
+    fun setSorted(sorted: String?) {
+        if (this.sorted != sorted) {
+            this.sorted = sorted
+            notifyDataSetChanged()
+        }
     }
 
     inner class ViewHolder : BaseViewHolder<Store> {
@@ -56,7 +64,7 @@ class StoreAdapter : BaseAdapter<Store> {
             txtFeatures.apply {
                 data.featureList?.let {
                     var text = ""
-                    for (feature in it.sorted()) {
+                    for (feature in sortedBy(it)) {
                         if (!text.isEmpty()) {
                             text += ", ${feature}"
                         } else {
@@ -75,6 +83,20 @@ class StoreAdapter : BaseAdapter<Store> {
                     appViewModel.updateStore(data)
                         .subscribeOn(Schedulers.io())
                         .subscribe()
+                }
+            }
+        }
+
+        private fun sortedBy(featureList: List<String>): List<String> {
+            when (sorted) {
+                "asc" -> {
+                    return featureList.sorted()
+                }
+                "desc" -> {
+                    return featureList.sortedDescending()
+                }
+                else -> {
+                    return featureList
                 }
             }
         }

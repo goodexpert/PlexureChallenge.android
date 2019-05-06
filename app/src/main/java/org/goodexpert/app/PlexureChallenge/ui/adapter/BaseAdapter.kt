@@ -12,7 +12,9 @@ abstract class BaseAdapter<T : Any>(@NonNull activity: Activity) : RecyclerView.
     private val inflater: LayoutInflater
 
     private val dataOriginal =  arrayListOf<T>()
-    private val dataFiltered = arrayListOf<T>()
+    private var dataFiltered = listOf<T>()
+
+    private var predicate: ((T) -> Boolean) = { true }
 
     init {
         this.activity = activity
@@ -38,17 +40,19 @@ abstract class BaseAdapter<T : Any>(@NonNull activity: Activity) : RecyclerView.
 
     fun setItems(dataSet: List<T>?) {
         dataOriginal.clear()
-        dataFiltered.clear()
-
         if (dataSet != null) {
             dataOriginal.addAll(dataSet)
-            dataFiltered.addAll(toFiltered(dataOriginal))
+            dataFiltered = dataOriginal.filter { predicate(it) }
         }
         notifyDataSetChanged()
     }
 
-    open fun toFiltered(list: List<T>): List<T> {
-        return list
+    open fun filter(predicate: (T) -> Boolean) {
+        if (this.predicate != predicate) {
+            dataFiltered = dataOriginal.filter { predicate(it) }
+            notifyDataSetChanged()
+        }
+        this.predicate = predicate
     }
 
     abstract class BaseViewHolder<T> : RecyclerView.ViewHolder {
